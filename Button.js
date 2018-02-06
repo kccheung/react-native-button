@@ -12,6 +12,9 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash.isequal';
+import isEmpty from 'lodash.isempty';
+import LottieView from 'lottie-react-native';
+
 
 class Button extends Component {
   static propTypes = {
@@ -36,9 +39,31 @@ class Button extends Component {
     onPressIn: PropTypes.func,
     onPressOut: PropTypes.func,
     background: (TouchableNativeFeedback.propTypes) ? TouchableNativeFeedback.propTypes.background : PropTypes.any,
+    lottieProp: PropTypes.shape({
+        source: PropTypes.string,
+        duration: PropTypes.number,
+        shouldLoop: PropTypes.bool
+    })
   }
 
   static isAndroid = (Platform.OS === 'android')
+
+    constructor() {
+        super(props);
+        this.state = {
+            progress: new Animated.Value(0),
+            loop: this.props.lottieProp.shouldLoop,
+            duration: this.props.lottieProp.duration,
+            source: this.props.lottieProp.source
+        };
+    }
+
+    componentDidMount() {
+        Animated.timing(this.state.progress, {
+            toValue: 1,
+            duration: this.state.duration,
+        }).start();
+    }
 
   _renderChildren() {
     let childElements = [];
@@ -69,13 +94,16 @@ class Button extends Component {
 
   _renderInnerText() {
     if (this.props.isLoading) {
+        if (isEmpty(this.props.lottieProp)) {
+            return (<ActivityIndicator
+                animating={true}
+                size='small'
+                style={styles.spinner}
+                color={this.props.activityIndicatorColor || 'black'}
+              />);
+        }
       return (
-        <ActivityIndicator
-          animating={true}
-          size='small'
-          style={styles.spinner}
-          color={this.props.activityIndicatorColor || 'black'}
-        />
+        <LottieView {...this.props.lottieProp} />
       );
     }
     return this._renderChildren();
