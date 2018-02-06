@@ -111,7 +111,7 @@ class Button extends Component {
   render() {
     if (this.props.isDisabled === true || this.props.isLoading === true) {
       return (
-        <View style={[styles.button, this.props.style, (this.props.disabledStyle || styles.opacity)]}>
+        <View style={[styles.button, this.props.style, this.props.isLoading ? {} : (this.props.disabledStyle || styles.opacity)]}>
           {this._renderInnerText()}
         </View>
       );
