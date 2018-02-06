@@ -40,29 +40,21 @@ class Button extends Component {
     onPressOut: PropTypes.func,
     background: (TouchableNativeFeedback.propTypes) ? TouchableNativeFeedback.propTypes.background : PropTypes.any,
     lottieProp: PropTypes.shape({
-        source: PropTypes.string,
+        source: PropTypes.oneOfType([PropTypes.object, PropTypes.string]).isRequired,
         duration: PropTypes.number,
-        shouldLoop: PropTypes.bool
+        loop: PropTypes.bool
     })
   }
 
   static isAndroid = (Platform.OS === 'android')
 
-    constructor() {
+    constructor(props) {
         super(props);
         this.state = {
-            progress: new Animated.Value(0),
-            loop: this.props.lottieProp.shouldLoop,
+            loop: this.props.lottieProp.loop,
             duration: this.props.lottieProp.duration,
             source: this.props.lottieProp.source
         };
-    }
-
-    componentDidMount() {
-        Animated.timing(this.state.progress, {
-            toValue: 1,
-            duration: this.state.duration,
-        }).start();
     }
 
   _renderChildren() {
@@ -103,7 +95,14 @@ class Button extends Component {
               />);
         }
       return (
-        <LottieView {...this.props.lottieProp} />
+        <LottieView ref={(animation) => {
+            if (animation) {
+                animation.play();
+            }
+        }}
+            {...this.state}
+            enableMergePathsAndroidForKitKatAndAbove
+        />
       );
     }
     return this._renderChildren();
